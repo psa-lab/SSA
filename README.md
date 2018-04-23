@@ -6,6 +6,8 @@ SSA is a tool to assign the secondary structure of a peptide from its atomic coo
 
 SSA is designed to work on 4-residue peptide fragments (approximately reflecting the periodicity of helices and reverse turns and two repeats within beta-strand) and is most often coupled for use with [Sequery](https://github.com/psa-lab/Sequery), which performs sequence pattern searches of the [Protein Data Bank](http://rcsb.org) (PDB). For more information and software availability on Sequery, see https://github.com/psa-lab/Sequery.
 
+![](images/AsnRS_Figure_5C_sm.jpg)
+
 ## References
 
 References related to the applications of SSA include the following:
