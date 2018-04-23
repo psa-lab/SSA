@@ -1,0 +1,224 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>SSA 3.0 Information & Documentation -- Installation</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.0Gold (X11; I; SunOS 5.5.1 sun4m) [Netscape]">
+</HEAD>
+<BODY TEXT="#330000" BGCOLOR="#FFF8DC" LINK="#CC0000" VLINK="#DC143C" ALINK="#DC143C">
+<A NAME="TOC"></A>
+
+<H1 ALIGN=CENTER>Installing <I>SSA</I> 3.0</H1>
+
+<CENTER><P><I>A tool for the automated assignment of secondary structure
+to tetrapeptides.</I> </P></CENTER>
+
+
+<!-- <A NAME="TOC"></A> -->
+<hr size=5>
+
+<OL>
+<LI><A HREF="#Intro">Introduction</A></LI>
+
+<LI><A HREF="#Install">Getting and Installing <I>SSA</I></A></LI>
+
+<UL>
+<LI><A HREF="#Shells">Troubleshooting Shell Scripts</A></LI>
+</UL>
+
+<LI><A HREF="#Det">Algorithmic Details of <I>SSA</I></A></LI>
+
+<LI><A HREF="#Contact">Contact Information</A></LI>
+</OL>
+
+For information on the use of <I>SSA</i>, see <a href="use.html">Using
+      <I>SSA</i></a>
+
+
+<hr size=5>
+
+<H2><A NAME="Intro"></A>Introduction</H2>
+
+<P><I>SSA</I> is a tool to assign the secondary structure of a peptide
+from its atomic coordinates in PDB format based on their superposition
+with sequences of ideal secondary structure. <I>SSA</I> was developed
+by members of the <A
+HREF="http://www.bch.msu.edu/labs/kuhn/index.html">Protein Structural
+Analysis and Design Laboratory</A> at <A
+HREF="http://www.msu.edu/">Michigan State University</A>, and was
+supported by funding from the MSU Vice Provost for Libraries,
+      Computing, & Technology and from the Department of
+      Biochemistry.</P>
+
+<I>SSA</i> is designed to work on 4-residue peptide fragments
+    (approximately reflecting the periodicity of helices and reverse
+    turns and two repeats within beta-strand) and is most often
+    coupled for use with <I>Sequery</i>, which performs sequence
+    pattern searches of the Protein Data Bank (PDB). For more
+    information and software availability on <I>Sequery</i>, see <A
+    href="http://www.bch.msu.edu/labs/kuhn/web/doc/sequery_doc.html">
+    <I>Sequery</i> Information and Documentation</a>.
+
+<P>For literature references related to <I>SSA</I>, please see the section
+on <A HREF="#Det">Algorithmic Details</A>.</P>
+
+<P><A HREF="#TOC">Back to Table of Contents</A></P>
+
+<hr size=5>
+
+<H2><A NAME="Install"></A>Getting and Installing <I>SSA</I></H2>
+
+<I>SSA</i> was designed and written for use on a UNIX workstation with
+a C-compiler and tested on Sun and Silicon Graphics workstations,
+though it should work on any system with a C-compiler installed and
+access to the Protein Data Bank. Implicit declaration errors may occur
+during compilation with the GNU C-compiler (gcc), but these errors do
+not affect program compilation or execution. Additional errors may be
+reported during compiltion with the SGI C-compiler, but these will
+also have no effect on compilation or execution.
+
+<P>The latest version of <I>SSA</I>, as well as the most recent
+version of this documentation, can be found at the home page for the
+<A HREF="http://www.bch.msu.edu/labs/kuhn/index.html">Protein
+Structural Analysis and Design Laboratory</A>, <A
+HREF="http://www.bch.msu.edu/">Department of Biochemistry, Michigan
+State University</A>. To install <I>SSA</I>, perform the following
+steps:</P>
+
+<UL>
+<LI>Download <A
+HREF="http://www.bch.msu.edu/labs/kuhn/web/software/ssa/ssa3.0.tar.Z">ssa3.0.tar.Z</A></LI>
+
+<LI>Place this file in the directory where you wish to install
+the software, and enter the following command:</LI>
+
+<UL>
+<P><TT>zcat ssa3.0.tar.Z | tar xvf -</TT></P>
+</UL>
+
+<LI>To compile the software,
+      <ol>
+	<LI>change directory to <tt>SourceFiles</tt>
+	<LI>type <tt>make install</tt>
+      </ol>
+<LI>To finish installation, 
+	<ol>
+	  <LI>edit <tt>SourceFiles/runssa</tt> script in the following
+      manner:<BR>
+      set <tt>PDBHOME</tt> to the directory containing the PDB
+      database on your system<br>
+      set <tt>ssahome</tt> to the directory where you installed
+      <I>SSA</i> using the full and explicit path. 
+	</ol>
+<LI>To run <I>SSA</I>, use the <TT>runssa</TT> script in the
+installation/bin directory. For example, if <I>SSA</I> is installed in
+<TT>/usr/local/biochem/SSA</TT>, then you would use the command:
+<TT>/usr/local/biochem/SSA/bin/runssa </TT>to run the
+	  software. Further information on the use of <I>SSA</i> can
+	  be found in <a href="use.html">Using <I>SSA</i></a></LI>
+
+</UL>
+
+<P><A HREF="#TOC">Back to Table of Contents</A></P>
+
+<hr size=5>
+
+<H3><A NAME="Shells"></A>Troubleshooting Shell Scripts</H3>
+
+ <P><TT>ssa/SourceFiles/runssa</TT> and <tt>ssa/share/genbcl</tt> are
+ C-shell scripts. They assume the C-shell is installed in the standard
+ location as <tt>/bin/csh</tt>.  If you have difficulty running this
+ script, try editing the first line of each script to point to the
+ correct shell location for your system. Also verify these files are
+ set with the proper executable permissions.
+
+<P><a href="#TOC">Back to Table of Contents</a></P>
+
+<hr size=5>
+<H2><A NAME="Det"></A>Algorithmic Details of <I>SSA</I></H2>
+
+<P>
+      <I>SSA</I> uses superpositional analysis to assign secondary
+      structure to short peptidyl segments (4 residues in its current
+      implementation). The basic algorithmic procedure is as follows:
+
+    <OL>
+      <LI>Superimpose the tetrapeptide in question onto each of the 7
+	template teptrapeptides (alpha-helix, beta-strand, type I
+	turn, type II turn, type I' turn, type II' turn, type VIII
+	turn). The alpha-helix and beta-strand templates were
+	generated using the phi-psi values in <I>InsightII</i> (MSI,
+	San Diego, CA) and the reverse turn templates were generated
+	using the phi-psi angles for average turns as reported in <P>
+	  Hutchinson EG, Thornton JM<BR>
+	  <STRONG>A revised set of potentials for beta-turn formation
+	    in proteins</strong><br>
+	  <I>Prot. Sci.</i>, <B>3(12)</b> (Dec): 2207-2216 (1994)<p> 
+
+      <LI>Assign the structure type based on a threshold of <
+      0.75&nbsp;&Aring; main-chain (N,C-alpha, C, O) RMSD using the
+      following algorithm
+	<UL>
+	  <LI>If the tetrapeptide matches the beta-strand template,
+	    assign as beta-strand (EXTE).
+
+	  <LI>If the tetrapeptide matches the helix template, check
+	    the structure of the tetrapeptide found by shifting one
+	    residue upstream and the structure of the tetrapeptide found
+	    by shifting one residue downstream against the helix
+	    template.
+	    <UL>
+	      <LI>If one OR the other of the shifted peptides also 
+		match the helix template, assign as helix (HELI).
+	      <LI>If NEITHER of the shifted peptides match the helix
+		template, check futher
+	    </ul>
+	  <LI>If the tetrapeptide matches one of the turn templates,
+	    assign as turn type with the lowest RMSD (type 1 = TUR1;
+	    type 1' = TT1P; type 2 = TUR2; type 2' = TT2P; or type 8 =
+	    TUR8)
+	  <LI>If the tetrapeptide matches none of the templates,
+	    calculate the C-alpha(i) to C-alpha(i+3) distance.
+	    <UL>
+	      <LI>If this distance is LESS than 7.0&nbsp;&Aring;, check the
+		structure of the tetrapeptide found by shifting one
+		residue upstream and the structure of the tetrapeptide
+		found by shifting one residue downstream against the
+		helix template.
+		<UL>
+		  <LI>If one OR the other of the shifted peptides also 
+		    match the helix template, assign as irregular
+		    helix (HIRR).
+		  <LI>If NEITHER match the helix template, assign as
+		    irregular turn (TIRR).
+		</UL>
+	      <LI>If this distance is GREATER than 7.0&nbsp;&Aring;,
+		assign as irregular (IRRE).
+	    </ul>
+	</ul>
+      </ol>
+
+	<P>Devlopment and the application of <I>SSA</i> to analyzing
+	  peptide-protein cross-reactivity can be found in
+
+	<P>Craig L, Sanschagrin PC, Rozek A, Lackie S, Kuhn LA, Scott
+      JK. 
+      <A HREF="../abstracts/jmb_antibody.html">
+	<STRONG>The Role of Structure in Antibody Cross-Reactivity Between
+	  Peptides and Folded Proteins</STRONG></A>
+      <I>J. Mol. Biol.</i>, <B>281(1)</b> (Aug 7): 183-201 (1998)</P>
+
+Please cite this paper in any applications of <I>SSA</i><p>
+
+<P><A HREF="#TOC">Back to Table of Contents</A></P>
+
+<hr size=5>
+
+<H2><A NAME="Contact"></A>Contact Information</H2>
+
+<P>Questions should be directed to Dr. Leslie Kuhn at
+the following email address:</P>
+
+<ADDRESS><A HREF="mailto:kuhn@agua.bch.msu.edu">kuhn@agua.bch.msu.edu</A></ADDRESS>
+
+</BODY>
+</HTML>

@@ -1,0 +1,51 @@
+#! /bin/csh -f
+
+# Directory & file locations:
+#
+# *****************************************************************
+# Edit these lines to include the proper file locations for your system
+setenv PDBHOME /psa/pdb
+set ssahome = "/home/sanschag/tempssa/dist/"
+# *****************************************************************
+
+# Leave these files
+set ssabin = "${ssahome}/SourceFiles/ssa"
+set protodir = "${ssahome}/InputFiles"
+
+# This line may be edited to exclude particular structure types from
+#  the comparison. However, the authors would suggest using the results
+#  and reported statistics to perform further analysis
+# All prototype files: 
+set ptypes = "beta helix turn_type1 turn_type2 turn_type1p turn_type2p turn_type8"
+
+# *** You should not need to edit anything below this line *** #
+
+# Relatively fixed file locations
+set ssabin = "${ssahome}/SourceFiles/ssa"
+set protodir = "${ssahome}/InputFiles"
+
+
+set prototypes = "" 
+foreach ptype (${ptypes})
+  set prototypes = "${prototypes} ${protodir}/${ptype}.pdb"
+end
+
+if (($#argv != 2) && ($#argv != 3) && ($#argv != 4)) then
+     echo "Usage: $0 [DEBUG] <Input Filename> [User Template Filename] <Output Filename>"
+     exit
+endif
+
+if ($#argv == 2) then
+     $ssabin  $1 $prototypes $2
+else if (($#argv == 3) && ($1 == "DEBUG")) then
+#	echo -n $1 " "
+#	echo -n $2 " "
+#	echo -n $prototypes " "
+#	echo -n $3
+#	exit
+     $ssabin $1 $2 $prototypes $3 
+else if (($#argv == 3) && ($1 != "DEBUG")) then
+     $ssabin $1 $prototypes $3 $2
+else
+     ssa $1 $2 $prototypes $4 $3
+endif

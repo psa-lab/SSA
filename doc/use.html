@@ -1,0 +1,467 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2//EN">
+<HTML>
+<HEAD>
+   <TITLE>SSA 3.0 Information & Documentation -- Use</TITLE>
+   <META NAME="GENERATOR" CONTENT="Mozilla/3.0Gold (X11; I; SunOS 5.5.1 sun4m) [Netscape]">
+</HEAD>
+<BODY TEXT="#330000" BGCOLOR="#FFF8DC" LINK="#CC0000" VLINK="#DC143C" ALINK="#DC143C">
+<A NAME="TOC"></A>
+
+<H1 ALIGN=CENTER>Using <I>SSA</I> 3.0</H1>
+
+<CENTER><P><I>A tool for the automated assignment of secondary structure
+to tetrapeptides.</I> </P></CENTER>
+
+
+<!-- <A NAME="TOC"></A> -->
+<hr size=5>
+
+<OL>
+<LI><A HREF="#Intro">Introduction</A></LI>
+
+<LI><A HREF="#Running">Running <I>SSA</I></A></LI>
+
+<UL>
+<LI><A href="#Example">Example Files</A></LI>
+</UL>
+
+<LI><A HREF="#Output">Output Files Produced by <I>SSA</I></A></LI>
+
+<LI><A HREF="#Warnings">Diagnostics: Warnings and Error Messages</A></LI>
+
+<LI><A HREF="#Input">Input Files and Adjustable Parameters</A></LI>
+
+<LI><A HREF="#Det">Algorithmic Details of <I>SSA</I></A></LI>
+
+<LI><A HREF="#Contact">Contact Information</A></LI>
+</OL>
+
+For information on obtaining and installing <I>SSA</I>, see <A
+	  href="installation.html">Installing <I>SSA</i></A>
+
+
+<hr size=5>
+
+<H2><A NAME="Intro"></A>Introduction</H2>
+
+<P><I>SSA</I> is a tool to assign the secondary structure of a peptide
+from its atomic coordinates in PDB format based on their superposition
+with sequences of ideal secondary structure. <I>SSA</I> was developed
+by members of the <A
+HREF="http://www.bch.msu.edu/labs/kuhn/index.html">Protein Structural
+Analysis and Design Laboratory</A> at <A
+HREF="http://www.msu.edu/">Michigan State University</A>, and was
+supported by funding from the MSU Vice Provost for Libraries,
+      Computing, & Technology and from the Department of
+      Biochemistry.</P>
+
+<I>SSA</i> is designed to work on 4-residue peptide fragments
+    (approximately reflecting the periodicity of helices and reverse
+    turns and two repeats within beta-strand) and is most often
+    coupled for use with <I>Sequery</i>, which performs sequence
+    pattern searches of the Protein Data Bank (PDB). For more
+    information and software availability on <I>Sequery</i>, see <A
+    href="http://www.bch.msu.edu/labs/kuhn/web/doc/sequery_doc.html">
+    <I>Sequery</i> Information and Documentation</a>.
+
+<P>For literature references related to <I>SSA</I>, please see the section
+on <A HREF="#Det">Algorithmic Details</A>.</P>
+
+<P><A HREF="#TOC">Back to Table of Contents</A></P>
+
+<hr size=5>
+
+<H2><A NAME="Running"></A>Running <I>SSA</I></H2>
+
+<P>
+<I>SSA</I> can be run in two different modes. The <B>standard mode</B>
+      takes an output file produced by <I>Sequery</I>, compares the
+      structure of each sequence match to a set of standard templates
+      to assign a secondary structure type, then outputs the
+      resulting assignments and summary information for the complete
+      <i>Sequery</i> file.
+
+    <UL>
+    <i>Syntax</i>: <TT>runssa SequeryOutputFile SSAOutputFile</TT><P>
+    <table width="60%" border=2 cellpadding=3>
+
+      <TR><TH>Argument</TH><TH>Description</TH></TR>
+      
+      <TR><TD valign=center
+	  width="20%"><TT>SequeryOutputFile</tt></td>
+	<td>file resulting from running <I>Sequery</i>; each line
+	  corresponds to a sequence of residues within a PDB
+	  file.</td></tr>
+
+      <TR><TD valign=center widht="20%"><TT>SSAOutputFile</tt></TD><TD>file
+	  where you wish to place the <I>SSA</i> results</TD></TR>
+    </table><P>
+      
+      <i>Example of SSA Input (Sequery Output) File:</i>
+    <PRE>
+1inp _  166 to  169 -> ikgsADITpnqg matching .DIT
+2bpa 1  230 to  233 -> tsydADNRpllv matching A.NR
+1cpc A   12 to   15 -> avaaADSQgrfl matching .D5Q
+    </pre>
+    <i>Example of SSA Standard Mode Output File</i> (described in
+    detail below in <a href="#Output">Output Files</a>)
+    <pre>
+1inp _  166 to  169 -> ikgsADITpnqg matching .DIT  IRRE
+2bpa 1  230 to  233 -> tsydADNRpllv matching A.NR  IRRE
+1cpc A   12 to   15 -> avaaADSQgrfl matching .D5Q  HELI
+    </pre>
+    </UL>
+<P>
+      <I>SSA</I> can also be run with an additional, user-supplied
+      template file in the secondary structure template set, for
+      instance, when you want to compare <i>Sequery</i> matches to a
+      nonstandard structure.  Running in <B>user-template mode</b>
+      will result in the RMSD between each of the <I>Sequery</i>
+      matches and the user template being reported, in addition to the
+      standard template matching assignments and summary.
+
+   <UL>
+    <i>Syntax</i>: <TT>runssa SequeryOutputFile UserTemplateFile SSAOutputFile</TT><P>
+    <table width="60%" border=2 cellpadding=3>
+      <TR><TH>Argument</TH><TH>Description</TH></TR>
+    <TR><TD valign=center
+	  width="20%"><TT>SequeryOutputFile</tt></td>
+	<td>file resulting from running <I>Sequery</i></td></tr>
+      <TR><TD valign=center width="20%"><TT>UserTemplateFile</tt></td>
+	<TD>file which contains a user-supplied template in PDB format
+	(see <tt>ssa/Examples/usertemplate.pdb</tt> for an example.)</TD>
+      <TR><TD valign=center width="20%"><TT>SSAOutputFile</tt></TD>
+	<TD>file where you wish to place the <I>SSA</i>
+	  results</TD></TR>
+    </table><P>
+    <i>Example of SSA User-template Mode Output File</i> (Note the addition
+      of and RMSD in the second to last column, which is the main-chain
+      (N, C-alpha, C, O) RMSD between the match and the user-template
+      tetrapeptide) and the * in final column, indicating it was a
+      structural match to the supplied template.)
+    <PRE>
+1inp _  166 to  169 -> ikgsADITpnqg matching .DIT  IRRE  2.13  
+2bpa 1  230 to  233 -> tsydADNRpllv matching A.NR  IRRE  1.96  
+1cpc A   12 to   15 -> avaaADSQgrfl matching .D5Q  HELI  0.64 *
+    </pre>
+  </UL>
+<P>
+      <I>SSA</i> can also be run in <B>Debug-mode</b> by giving the
+      argument ``DEBUG'' before other arguments. This mode will output
+      all distance and matching matrices and is probably of limited
+      use for the user.
+
+<P><a href="#TOC">Back to Table of Contents</a></p>
+
+<hr size=5>
+
+<H2><A NAME="Example"></A>Example Files</H2>
+
+Example input, output, and log files have been included in
+    <tt>ssa/Examples</tt> directory.<P>
+      <table width="80%" cellpadding=3 border=0>
+      <tr><th>File</th><th>Description</th></tr>
+    <tr><td>Example.sequery</td><td>A <i>Sequery</i> output file
+    <tr><td valign=top>Example.standardmode.out</td><td
+	  valign=top><i>SSA</i> output file generated by running in
+	  <b>standard mode</b> (<tt>runssa Example.sequery
+	    Example.standardmode.out</tt>)</td></tr>
+      <tr><td valign=top>ssa.standardmode.log</td><td valign=top>Logfile
+	  associated with the above run, showing error messages that
+	  occur (explained further in <a href="#Warnings">Warnings and
+	    Error Messages</A>
+      <tr><td valign=top>Example.usertemplatemode.out</td><td
+	  valign=top><i>SSA</i> output file generated by running in
+	  <b>user-template mode</b> with the
+	  usertemplate.pdb. (<tt>runssa Example.sequery
+	    usertemplate.pdb Example.standardmode.out</tt>)</td></tr>
+      <tr><td valign=top>ssa.usertemplatemode.log</td><td
+	  valign=top>Logfile for the above run</td></tr> 
+      <tr><td valign=top>usertemplate.pdb</td><td valign=top>An example
+	  user-template file</td></tr> 
+      
+    </table>
+
+<P><a href="#TOC">Back to Table of Contents</a></P>
+
+<hr size=5>
+
+<H2><A NAME="Output"></A>Output Files Generated by <I>SSA</I></H2>
+
+<B>Standard Mode</b> -- <I>SSA</i> will generate an output file
+    containing a line for each <I>Sequery</i> match, listing the PDB
+    code, chain identifier, numerical residue range, 4-residue peptide
+    matching sequence (in upper case) along with 4 residues of
+    sequence on either side (in lower case), the sequence pattern
+    matched, and the assigned secondary structure. The secondary
+    structure codes are as follows:
+
+    <table width="60%" border=2>
+      <TR><TD VALIGN=TOP>HELI</TD><TD VALIGN=TOP>Alpha-helix</TD></TR>
+      <TR><TD VALIGN=TOP>HIRR</TD><TD VALIGN=TOP>Irregular Helix --
+	  the first or last turn of a helix, or a location of a
+	  helical kink</TD></TR>
+      <TR><TD VALIGN=TOP>EXTE</TD><TD VALIGN=TOP>Extended -- matching
+	  a beta-strand template (though not necessarily associated
+	  with a beta-sheet tertiary structure, since hydrogen bonding
+	  is not checked).</TD></TR> 
+      <TR><TD VALIGN=TOP>IRRE</TD><TD VALIGN=TOP>Irregular --
+	  tetrapeptide that is not a good structural match with any of
+	  the template structures, including turns</TD></TR>
+      <TR><TH colspan=2>Turns</TH></TR>
+      <TR><TD VALIGN=TOP>TUR1</TD><TD VALIGN=TOP>Type 1 Turn</TD></TR>
+      <TR><TD VALIGN=TOP>TT1P</TD><TD VALIGN=TOP>Type 1' Turn</TD></TR>
+      <TR><TD VALIGN=TOP>TUR2</TD><TD VALIGN=TOP>Type 2 Turn</TD></TR>
+      <TR><TD VALIGN=TOP>TT2P</TD><TD VALIGN=TOP>Type 2' Turn</TD></TR>
+      <TR><TD VALIGN=TOP>TUR8</TD><TD VALIGN=TOP>Type 8 Turn</TD></TR>
+      <TR><TD VALIGN=TOP>TIRR</TD><TD VALIGN=TOP>Irregular Turn --
+	  Does not match very closely with a turn template, but i and
+	  i+3 C-alpha's are within 7.0 &Aring;
+	  <TR><TH colspan=2>Misc</TH></TR>
+      <TR><TD VALIGN=TOP>ERROR</TD><TD VALIGN=TOP>Error -- an error
+	  occurred during processing of this sequence match. Check
+	  <TT>ssa.log</TT> for details.</TD></TR>
+    </table>
+    <P>
+      In addition to individual lines for each sequence match, a
+      summary of results is posted at the bottom. This summary
+      includes basic information about the processing and statistics
+      for the different types of secondary structures assigned,
+      including sums and percentages for each general class, excluding
+      processing errors. If errors occured, check the <TT>ssa.log</tt>
+      file for more details. <P>
+      <I>Example Full <b>Standard Mode</b> Output File</i>: (taken from
+	<tt>ssa/Examples/Example.standardmode.out</tt>, with most of
+	the output lines removed for brevity)
+    <PRE>
+# Sequery Filename : Example.sequery
+
+#    C
+#    h
+#    a
+#    i   Residue                                         User User
+#PDB n      Range      Sequence                    Type  RMSD Match?
+#------------------------------------------------------------------
+1pxt B   40 to   43 -> vvivAANRsaig matching A.NR  EXTE
+1tiv _   21 to   24 -> qpktACNRchck matching A6NR  EXTE
+1pox A  324 to  327 -> iavlADAQktla matching .D5Q  IRRE
+2bpa 1  230 to  233 -> tsydADNRpllv matching A.NR  IRRE
+1cpc A   12 to   15 -> avaaADSQgrfl matching .D5Q  HELI
+1hpm _  131 to  134 -> mkeiAEAYlgkt matching .E.Y  HELI
+1aor A  602 to  605 -> elgiAEFY     matching .E.Y  ERROR
+1aor A  407 to  410 -> syrlAESYghpe matching .E.Y  HELI
+1mxa _  213 to  216 -> pilpAEWLtsat matching .EWL  TUR1
+1fnc _  223 to  226 -> mkekAPDNfrld matching AP..  TUR1
+
+
+####################################STATISTICS##############################
+# Total number of sequery lines processed is:           10
+# Total number of Errors (excluded from statistics):    1  (10.00 %)
+# # of Regular Helix Types: 3	 (33.33 %)
+# # of Irreg Helix Types:   0	 (0.00 %)
+# Total # of Helix Types:   		3	 (33.33 %)
+#
+# # of Extended Types:      		2	 (22.22 %)
+#
+# # of Type1 Turns:         2	 (22.22 %)
+# # of Type2 Turns:         0	 (0.00 %)
+# # of Type1' Turns:        0	 (0.00 %)
+# # of Type2' Turns:        0	 (0.00 %)
+# # of Type8 Turns:         0	 (0.00 %)
+# # of Irreg Turns:         0	 (0.00 %)
+# Total # Of Turns:         		2	 (22.22 %)
+#
+# # of Irreg Types *:        		2	 (22.22 %)
+#
+#* # of Irreg Types excludes Irreg Helices and Irreg Turns
+
+    </pre>
+    <P>
+      <B>User-Template Mode</b> -- In addition to the above results,
+      <I>SSA</i> will also output the main-chain RMSD between each of the
+      sequence matches and the user-template and whether it matches within
+      the threshold RMSD of 0.75&nbsp;&Aring;, which is denoted by an
+      asterisk (*) under the ``User Match?'' column heading. A summary
+      of the number and percentage of matching sequences is also
+      included.<P>
+      <I>Example Full <b>User-Template Mode</b> Output File</i>:
+      (taken from <tt>ssa/Examples/Example.usertemplate.mode,out</tt>,
+      with most of the output lines removed for brevity)
+    <PRE>
+# Sequery Filename : Example.sequery
+# User Template : usertemplate.pdb
+ 
+#    C
+#    h
+#    a
+#    i   Residue                                         User User
+#PDB n      Range      Sequence                    Type  RMSD Match?
+#------------------------------------------------------------------
+1pxt B   40 to   43 -> vvivAANRsaig matching A.NR  EXTE  2.71  
+1tiv _   21 to   24 -> qpktACNRchck matching A6NR  EXTE  2.55  
+1pox A  324 to  327 -> iavlADAQktla matching .D5Q  IRRE  2.25  
+2bpa 1  230 to  233 -> tsydADNRpllv matching A.NR  IRRE  1.96  
+1cpc A   12 to   15 -> avaaADSQgrfl matching .D5Q  HELI  0.64 *
+1hpm _  131 to  134 -> mkeiAEAYlgkt matching .E.Y  HELI  0.57 *
+1aor A  602 to  605 -> elgiAEFY     matching .E.Y  ERROR
+1aor A  407 to  410 -> syrlAESYghpe matching .E.Y  HELI  0.66 *
+1mxa _  213 to  216 -> pilpAEWLtsat matching .EWL  TUR1  0.75  
+1fnc _  223 to  226 -> mkekAPDNfrld matching AP..  TUR1  0.57 *
+ 
+ 
+####################################STATISTICS##############################
+# Total number of sequery lines processed is:           10
+# Total number of Errors (excluded from statistics):    1  (10.00 %)
+# # of Regular Helix Types: 3    (33.33 %)
+# # of Irreg Helix Types:   0    (0.00 %)
+# Total # of Helix Types:               3        (33.33 %)
+#
+# # of Extended Types:                  2        (22.22 %)
+#
+# # of Type1 Turns:         2    (22.22 %)
+# # of Type2 Turns:         0    (0.00 %)
+# # of Type1' Turns:        0    (0.00 %)
+# # of Type2' Turns:        0    (0.00 %)
+# # of Type8 Turns:         0    (0.00 %)
+# # of Irreg Turns:         0    (0.00 %)
+# Total # Of Turns:                     2        (22.22 %)
+#
+# # of Irreg Types *:                   2        (22.22 %)
+#
+#* # of Irreg Types excludes Irreg Helices and Irreg Turns
+# Number of User Matches:  4     and % that matched is:  44.44
+    </pre>
+
+<P><a href="#TOC">Back to Table of Contents</a></P>
+
+<hr size=5>
+
+<H2><A NAME="Warnings"></A>Warnings and Error Messages</H2>
+
+<h4>Compilation errors</h4>
+    As stated above in the Installation instructions, <i>SSA</i> may
+    cause compilation warnings when compiled with GNU's gcc
+    compiler. These errors have no effect on execution. 
+
+<h4>Run-Time Errors</h4>
+    Most of the error messages that <I>SSA</i> generates are related to
+    problems with the sequence matches. The 2 most common errors
+    follow (taken from an example <tt>ssa.log</tt>:<P>
+    <UL>
+      <LI><TT>ERROR: Insufficient Input Data. Couldnt grab residues on the
+	  lower and upper boundary of the sequence. - PDB code is "1aor"
+	  and sequence is "elgiAEFY"</TT><BR>
+	<B>Explanation</B> -- This error was generated with a sequence
+	match to the sequence <tt>AEFY</tt> at the C-terminus of the
+	structure with PDB code 1aor. The error given indicates that
+	there are not sufficient residues to test the structure of
+	flanking regions for helicity.
+      <LI><TT>ERROR: Backbone atoms from PDB file could not be matched
+	  with the template for superposition,probably due to missing
+	  or extra atoms. - PDB code is "1efg" and sequence is
+	  "vwrqAEKYkvpr"</TT><BR>
+	<B>Explanation</b> -- This error was generated with a sequence
+	match to the sequence <TT>AEKY</TT> in the structure with PDB
+	code 1efg. This error indicates that there are insufficient
+	atoms to perform the required superposition to calculate the
+	RMSD. <I>SSA</i> uses a superposition of all 4 backbone atoms
+	(nitrogen, alpha-carbon, carboyl-carbon &
+	carbonyl-oxygen). Since superposition requires a one-to-one
+	atom correspondance, it will not work correctly if there are
+	fewer atoms or additional atoms in one of the sets. Most cases
+	of this error occur for alpha-carbon-only PDB structures.
+    </UL>
+
+
+<P><a href="#TOC">Back to Table of Contents</a></p>
+
+<hr size=5>
+
+<H2><A NAME="Det"></A>Algorithmic Details of <I>SSA</I></H2>
+
+<P>
+      <I>SSA</I> uses superpositional analysis to assign secondary
+      structure to short peptidyl segments (4 residues in its current
+      implementation). The basic algorithmic procedure is as follows:
+
+    <OL>
+      <LI>Superimpose the tetrapeptide in question onto each of the 7
+	template teptrapeptides (alpha-helix, beta-strand, type I
+	turn, type II turn, type I' turn, type II' turn, type VIII
+	turn). The alpha-helix and beta-strand templates were
+	generated using the phi-psi values in <I>InsightII</i> (MSI,
+	San Diego, CA) and the reverse turn templates were generated
+	using the phi-psi angles for average turns as reported in <P>
+	  Hutchinson EG, Thornton JM<BR>
+	  <STRONG>A revised set of potentials for beta-turn formation
+	    in proteins</strong><br>
+	  <I>Prot. Sci.</i>, <B>3(12)</b> (Dec): 2207-2216 (1994)<p> 
+
+      <LI>Assign the structure type based on a threshold of <
+      0.75&nbsp;&Aring; main-chain (N,C-alpha, C, O) RMSD using the
+      following algorithm
+	<UL>
+	  <LI>If the tetrapeptide matches the beta-strand template,
+	    assign as beta-strand (EXTE).
+
+	  <LI>If the tetrapeptide matches the helix template, check
+	    the structure of the tetrapeptide found by shifting one
+	    residue upstream and the structure of the tetrapeptide found
+	    by shifting one residue downstream against the helix
+	    template.
+	    <UL>
+	      <LI>If one OR the other of the shifted peptides also 
+		match the helix template, assign as helix (HELI).
+	      <LI>If NEITHER of the shifted peptides match the helix
+		template, check futher
+	    </ul>
+	  <LI>If the tetrapeptide matches one of the turn templates,
+	    assign as turn type with the lowest RMSD (type 1 = TUR1;
+	    type 1' = TT1P; type 2 = TUR2; type 2' = TT2P; or type 8 =
+	    TUR8)
+	  <LI>If the tetrapeptide matches none of the templates,
+	    calculate the C-alpha(i) to C-alpha(i+3) distance.
+	    <UL>
+	      <LI>If this distance is LESS than 7.0&nbsp;&Aring;, check the
+		structure of the tetrapeptide found by shifting one
+		residue upstream and the structure of the tetrapeptide
+		found by shifting one residue downstream against the
+		helix template.
+		<UL>
+		  <LI>If one OR the other of the shifted peptides also 
+		    match the helix template, assign as irregular
+		    helix (HIRR).
+		  <LI>If NEITHER match the helix template, assign as
+		    irregular turn (TIRR).
+		</UL>
+	      <LI>If this distance is GREATER than 7.0&nbsp;&Aring;,
+		assign as irregular (IRRE).
+	    </ul>
+	</ul>
+      </ol>
+
+	<P>Devlopment and the application of <I>SSA</i> to analyzing
+	  peptide-protein cross-reactivity can be found in
+
+	<P>Craig L, Sanschagrin PC, Rozek A, Lackie S, Kuhn LA, Scott
+      JK. 
+      <A HREF="../abstracts/jmb_antibody.html">
+	<STRONG>The Role of Structure in Antibody Cross-Reactivity Between
+	  Peptides and Folded Proteins</STRONG></A>
+      <I>J. Mol. Biol.</i>, <B>281(1)</b> (Aug 7): 183-201 (1998)</P>
+
+Please cite this paper in any applications of <I>SSA</i><p>
+
+<P><A HREF="#TOC">Back to Table of Contents</A></P>
+
+<hr size=5>
+
+<H2><A NAME="Contact"></A>Contact Information</H2>
+
+<P>Questions should be directed to Dr. Leslie Kuhn at
+the following email address:</P>
+
+<ADDRESS><A HREF="mailto:kuhn@agua.bch.msu.edu">kuhn@agua.bch.msu.edu</A></ADDRESS>
+
+</BODY>
+</HTML>

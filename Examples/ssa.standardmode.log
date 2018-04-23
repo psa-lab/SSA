@@ -1,0 +1,3 @@
+# Sequery Filename : Example.sequery
+
+ERROR: Insufficient Input Data. Couldnt grab residues on the lower and upper boundary of the sequence. - PDB code is "1aor" and sequence is "elgiAEFY" 
